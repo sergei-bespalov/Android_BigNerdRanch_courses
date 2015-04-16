@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
@@ -14,8 +15,8 @@ import android.support.v7.widget.Toolbar;
 public class QuizActivity extends ActionBarActivity {
     private Button mTrueButton;
     private Button mFalseButton;
-    private Button mNextButton;
-    private Button mPrevButton;
+    private View mNextButton;
+    private View mPrevButton;
     private TextView mTextView;
 
     private TrueFalse[] mQuestionBank = new TrueFalse[]{
@@ -44,7 +45,7 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
 
-        mNextButton = (Button) findViewById(R.id.button_next);
+        mNextButton = findViewById(R.id.button_next);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,7 +53,7 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
 
-        mPrevButton = (Button) findViewById(R.id.button_prev);
+        mPrevButton = findViewById(R.id.button_prev);
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
