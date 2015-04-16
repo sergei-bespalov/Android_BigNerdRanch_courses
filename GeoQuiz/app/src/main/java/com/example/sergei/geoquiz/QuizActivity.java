@@ -36,13 +36,18 @@ public class QuizActivity extends ActionBarActivity {
 
         mTextView = (TextView) findViewById(R.id.text_question);
         updateQuestion();
+        mTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nextQuestion();
+            }
+        });
 
         mNextButton = (Button) findViewById(R.id.button_next);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-                updateQuestion();
+                nextQuestion();
             }
         });
 
@@ -60,6 +65,11 @@ public class QuizActivity extends ActionBarActivity {
                 checkAnswer(false);
             }
         });
+    }
+
+    private void nextQuestion(){
+        mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+        updateQuestion();
     }
 
     private void updateQuestion(){
