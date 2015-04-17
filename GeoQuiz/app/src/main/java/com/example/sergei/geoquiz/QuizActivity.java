@@ -2,6 +2,7 @@ package com.example.sergei.geoquiz;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -13,11 +14,13 @@ import android.support.v7.widget.Toolbar;
  * GeoQuiz from Big Nerd Ranch Book
  */
 public class QuizActivity extends ActionBarActivity {
+    private static final String TAG = "QuizActivity";
     private Button mTrueButton;
     private Button mFalseButton;
     private View mNextButton;
     private View mPrevButton;
     private TextView mTextView;
+    private static final String KEY_INDEX = "com.example.sergei.geoquiz.state.index";
 
     private TrueFalse[] mQuestionBank = new TrueFalse[]{
             new TrueFalse(R.string.question_oceans, true),
@@ -31,10 +34,16 @@ public class QuizActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate(Bundle) called");
+
+        if(savedInstanceState != null){
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX,0);
+        }
+
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);
+        /*Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);*/
 
         mTextView = (TextView) findViewById(R.id.text_question);
         updateQuestion();
@@ -99,5 +108,40 @@ public class QuizActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG,"onStart() called");
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume() called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG,"onPause() called ");
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d(TAG,"onStop called");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG,"onDestroy called");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i(TAG,"onSaveInstanceState(Bundle)");
+        outState.putInt(KEY_INDEX,mCurrentIndex);
+    }
 }
