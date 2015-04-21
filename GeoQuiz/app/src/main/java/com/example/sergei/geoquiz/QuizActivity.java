@@ -18,7 +18,6 @@ import android.support.v7.widget.Toolbar;
  */
 public class QuizActivity extends ActionBarActivity {
     private static final String TAG = "QuizActivity";
-    private boolean mIsCheater;
     private Button mTrueButton;
     private Button mFalseButton;
     private View mNextButton;
@@ -26,6 +25,8 @@ public class QuizActivity extends ActionBarActivity {
     private Button mCheatButton;
     private TextView mTextView;
     private static final String KEY_INDEX = "com.example.sergei.geoquiz.state.index";
+    private static final String KEY_SAVED_ARRAY = "questions";
+
 
     private TrueFalse[] mQuestionBank = new TrueFalse[]{
             new TrueFalse(R.string.question_oceans, true),
@@ -43,6 +44,7 @@ public class QuizActivity extends ActionBarActivity {
 
         if(savedInstanceState != null){
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX,0);
+            mQuestionBank = (TrueFalse[]) savedInstanceState.getParcelableArray(KEY_SAVED_ARRAY);
         }
 
         setContentView(R.layout.activity_main);
@@ -108,14 +110,13 @@ public class QuizActivity extends ActionBarActivity {
     }
 
     private void updateQuestion(){
-        mIsCheater = false;
         int question = mQuestionBank[mCurrentIndex].getQuestion();
         mTextView.setText(question);
     }
 
     private void checkAnswer(boolean userPressTrue){
         int resultToast;
-        if (mIsCheater) resultToast = R.string.judgment_toast;
+        if (mQuestionBank[mCurrentIndex].isCheater()) resultToast = R.string.judgment_toast;
         else if (mQuestionBank[mCurrentIndex].isTrueQuestion() == userPressTrue){
             resultToast = R.string.toast_correct;
         }else resultToast = R.string.toast_incorrect;
@@ -133,7 +134,8 @@ public class QuizActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null) return;
-        mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_KEY_SHOW_ANSWER, false);
+        boolean isCheater = data.getBooleanExtra(CheatActivity.EXTRA_KEY_SHOW_ANSWER, false);
+        mQuestionBank[mCurrentIndex].setCheater(isCheater);
     }
 
     @Override
@@ -170,6 +172,7 @@ public class QuizActivity extends ActionBarActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.i(TAG,"onSaveInstanceState(Bundle)");
-        outState.putInt(KEY_INDEX,mCurrentIndex);
+        outState.putInt(KEY_INDEX, mCurrentIndex);
+        outState.putParcelableArray(KEY_SAVED_ARRAY, mQuestionBank);
     }
 }

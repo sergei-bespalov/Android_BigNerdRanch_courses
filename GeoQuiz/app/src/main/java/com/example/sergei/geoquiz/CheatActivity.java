@@ -16,12 +16,22 @@ public class CheatActivity extends ActionBarActivity{
     public static final String EXTRA_KEY_IS_TRUE_QUESTION = "com.example.sergei.geoquiz.CheatActivity.istrue";
     public static final String EXTRA_KEY_SHOW_ANSWER = "com.example.sergei.geoquiz.CheatActivity.showAnswer";
 
+    private static final String KEY_CHEATER = "cheater";
+
     private Button mCheatButton;
     private TextView mCheatText;
+    private  boolean mCheater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cheat);
+
+        if (savedInstanceState != null){
+            mCheater = savedInstanceState.getBoolean(KEY_CHEATER);
+            Intent intent = new Intent();
+            intent.putExtra(EXTRA_KEY_SHOW_ANSWER,mCheater);
+            setResult(RESULT_OK,intent);
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
@@ -49,5 +59,11 @@ public class CheatActivity extends ActionBarActivity{
         Intent intent = new Intent();
         intent.putExtra(EXTRA_KEY_SHOW_ANSWER, isShow);
         setResult(RESULT_OK,intent);
+        mCheater = isShow;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(KEY_CHEATER, mCheater);
     }
 }
