@@ -2,13 +2,13 @@ package com.example.sergei.geoquiz;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +24,7 @@ public class QuizActivity extends ActionBarActivity {
     private View mPrevButton;
     private Button mCheatButton;
     private TextView mTextView;
+    private TextView mApiVersionText;
     private static final String KEY_INDEX = "com.example.sergei.geoquiz.state.index";
     private static final String KEY_SAVED_ARRAY = "questions";
 
@@ -102,6 +103,9 @@ public class QuizActivity extends ActionBarActivity {
                 cheat();
             }
         });
+
+        mApiVersionText = (TextView) findViewById(R.id.api_version_text);
+        mApiVersionText.setText("API "+Build.VERSION.SDK_INT);
     }
 
     private void nextQuestion(){

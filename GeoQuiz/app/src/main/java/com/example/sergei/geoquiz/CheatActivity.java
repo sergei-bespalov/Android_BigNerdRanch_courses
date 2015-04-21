@@ -1,6 +1,7 @@
 package com.example.sergei.geoquiz;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,7 @@ public class CheatActivity extends ActionBarActivity{
     private Button mCheatButton;
     private TextView mCheatText;
     private  boolean mCheater;
+    private TextView mApiVersionText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +32,7 @@ public class CheatActivity extends ActionBarActivity{
             mCheater = savedInstanceState.getBoolean(KEY_CHEATER);
             Intent intent = new Intent();
             intent.putExtra(EXTRA_KEY_SHOW_ANSWER,mCheater);
-            setResult(RESULT_OK,intent);
+            setResult(RESULT_OK, intent);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -47,6 +49,9 @@ public class CheatActivity extends ActionBarActivity{
                 cheat(isTrue);
             }
         });
+
+        mApiVersionText = (TextView) findViewById(R.id.api_version_text);
+        mApiVersionText.setText(Build.VERSION.CODENAME);
     }
 
     private void cheat(boolean isTrue){
