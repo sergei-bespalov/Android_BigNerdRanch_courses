@@ -1,5 +1,6 @@
 package com.example.sergei.geoquiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,7 +13,8 @@ import android.widget.TextView;
  */
 public class CheatActivity extends ActionBarActivity{
 
-    public  static final String EXTRA_KEY_IS_TRUE_QUESTION = "com.example.sergei.geoquiz.CheatActivity";
+    public static final String EXTRA_KEY_IS_TRUE_QUESTION = "com.example.sergei.geoquiz.CheatActivity.istrue";
+    public static final String EXTRA_KEY_SHOW_ANSWER = "com.example.sergei.geoquiz.CheatActivity.showAnswer";
 
     private Button mCheatButton;
     private TextView mCheatText;
@@ -40,5 +42,12 @@ public class CheatActivity extends ActionBarActivity{
     private void cheat(boolean isTrue){
         if(isTrue) mCheatText.setText(R.string.button_true_text);
         else mCheatText.setText(R.string.button_false_text);
+        setAnswerShowResult(true);
+    }
+
+    public void setAnswerShowResult(boolean isShow){
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_KEY_SHOW_ANSWER, isShow);
+        setResult(RESULT_OK,intent);
     }
 }

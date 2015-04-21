@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
  */
 public class QuizActivity extends ActionBarActivity {
     private static final String TAG = "QuizActivity";
+    private boolean mIsCheater;
     private Button mTrueButton;
     private Button mFalseButton;
     private View mNextButton;
@@ -107,25 +108,32 @@ public class QuizActivity extends ActionBarActivity {
     }
 
     private void updateQuestion(){
+        mIsCheater = false;
         int question = mQuestionBank[mCurrentIndex].getQuestion();
         mTextView.setText(question);
     }
 
     private void checkAnswer(boolean userPressTrue){
-        boolean isTrueQuestion = mQuestionBank[mCurrentIndex].isTrueQuestion();
-        if (isTrueQuestion == userPressTrue){
-            Toast.makeText(QuizActivity.this, R.string.toast_correct, Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(QuizActivity.this, R.string.toast_incorrect, Toast.LENGTH_SHORT).show();
-        }
+        int resultToast;
+        if (mIsCheater) resultToast = R.string.judgment_toast;
+        else if (mQuestionBank[mCurrentIndex].isTrueQuestion() == userPressTrue){
+            resultToast = R.string.toast_correct;
+        }else resultToast = R.string.toast_incorrect;
+        Toast.makeText(QuizActivity.this, resultToast, Toast.LENGTH_SHORT).show();
     }
 
     private void cheat(){
         Intent intent = new Intent(this,CheatActivity.class);
         boolean isTrue = mQuestionBank[mCurrentIndex].isTrueQuestion();
         intent.putExtra(CheatActivity.EXTRA_KEY_IS_TRUE_QUESTION,isTrue);
-        startActivity(intent);
+        //startActivity(intent);
+        startActivityForResult(intent,0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) return;
+        mIsCheater = data.getBooleanExtra(CheatActivity.EXTRA_KEY_SHOW_ANSWER, false);
     }
 
     @Override
