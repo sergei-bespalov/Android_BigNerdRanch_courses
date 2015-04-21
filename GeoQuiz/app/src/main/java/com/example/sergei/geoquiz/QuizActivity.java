@@ -1,5 +1,8 @@
 package com.example.sergei.geoquiz;
 
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -19,6 +22,7 @@ public class QuizActivity extends ActionBarActivity {
     private Button mFalseButton;
     private View mNextButton;
     private View mPrevButton;
+    private Button mCheatButton;
     private TextView mTextView;
     private static final String KEY_INDEX = "com.example.sergei.geoquiz.state.index";
 
@@ -42,8 +46,10 @@ public class QuizActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
 
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(toolbar);*/
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+            setSupportActionBar(toolbar);
+        }
 
         mTextView = (TextView) findViewById(R.id.text_question);
         updateQuestion();
@@ -74,6 +80,7 @@ public class QuizActivity extends ActionBarActivity {
 
         mTrueButton = (Button) findViewById(R.id.button_true);
         mFalseButton = (Button) findViewById(R.id.button_false);
+        mCheatButton = (Button) findViewById(R.id.button_cheat);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,6 +91,12 @@ public class QuizActivity extends ActionBarActivity {
             @Override
             public void onClick(View view) {
                 checkAnswer(false);
+            }
+        });
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cheat();
             }
         });
     }
@@ -106,6 +119,13 @@ public class QuizActivity extends ActionBarActivity {
         else{
             Toast.makeText(QuizActivity.this, R.string.toast_incorrect, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void cheat(){
+        Intent intent = new Intent(this,CheatActivity.class);
+        boolean isTrue = mQuestionBank[mCurrentIndex].isTrueQuestion();
+        intent.putExtra(CheatActivity.EXTRA_KEY_IS_TRUE_QUESTION,isTrue);
+        startActivity(intent);
     }
 
     @Override
