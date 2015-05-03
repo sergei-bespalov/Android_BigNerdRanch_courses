@@ -11,6 +11,10 @@ public class Crime {
     private String mTitle;
     private Date mDate;
 
+    public Crime(){
+        mDate = new Date();
+    }
+
     public boolean isSolved() {
         return mSolved;
     }
