@@ -1,6 +1,7 @@
 package bespalov.sergei.criminalintent.controller;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,15 @@ public class CrimeListFragment extends ListFragment{
     public void onListItemClick(ListView l, View v, int position, long id) {
         Crime crime = (Crime) getListAdapter().getItem(position);
         Log.d(TAG,crime.getTitle() + "was clicked");
+        Intent intent = new Intent(getActivity(),CrimeActivity.class);
+        intent.putExtra(CrimeFragment.EXTRA_CRIME_ID,crime.getId());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((CrimeAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
     private class CrimeAdapter extends ArrayAdapter<Crime>{
