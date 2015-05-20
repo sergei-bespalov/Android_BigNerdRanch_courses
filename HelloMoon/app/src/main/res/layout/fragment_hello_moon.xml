@@ -29,10 +29,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/hellomoon_stop"/>
-        <Button
-            android:id="@+id/hellomoon_videoPlay"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/hellomoon_video"/>
+
     </TableRow>
 </TableLayout>
