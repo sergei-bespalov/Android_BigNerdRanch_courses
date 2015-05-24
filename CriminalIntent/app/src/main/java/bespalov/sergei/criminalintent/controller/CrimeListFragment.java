@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,9 +29,11 @@ import bespalov.sergei.criminalintent.model.CrimeLab;
  * Created by sergei on 5/3/2015.
  */
 public class CrimeListFragment extends ListFragment {
+    private Button mNewCrimeButton;
     private ArrayList<Crime> mCrimes;
     private static final String TAG = "CrimeListFragment";
     private boolean mSubtitleVisible;
+
 
 
     @Override
@@ -51,12 +54,22 @@ public class CrimeListFragment extends ListFragment {
     @TargetApi(11)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             if(mSubtitleVisible){
                 ((ActionBarActivity) getActivity()).getSupportActionBar().setSubtitle(R.string.subtitle);
             }
         }
+
+        mNewCrimeButton = (Button) view.findViewById(R.id.new_crime_button);
+        mNewCrimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createNewCrime();
+            }
+        });
+
         return view;
     }
 
@@ -112,11 +125,7 @@ public class CrimeListFragment extends ListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_crime:
-                Crime crime = new Crime();
-                CrimeLab.getCrimeLab(getActivity()).addCrime(crime);
-                Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
-                intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
-                startActivityForResult(intent, 0);
+                createNewCrime();
                 return true;
             case R.id.menu_item_show_subtitle:
                 if (((ActionBarActivity)getActivity()).getSupportActionBar().getSubtitle() == null) {
@@ -132,5 +141,13 @@ public class CrimeListFragment extends ListFragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void createNewCrime(){
+        Crime crime = new Crime();
+        CrimeLab.getCrimeLab(getActivity()).addCrime(crime);
+        Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
+        intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
+        startActivityForResult(intent, 0);
     }
 }
