@@ -10,4 +10,9 @@
     <string name="change_date_or_time_title">Change date or time?</string>
     <string name="change_time_button_title">Change time</string>
     <string name="change_date_button_title">Change date</string>
+    <string name="new_crime">New Crime</string>
+    <string name="show_subtitle">Show Subtitle</string>
+    <string name="hide_subtitle">Hide Subtitle</string>
+    <string name="subtitle">If you see something, say something.</string>
+    <string name="delete_crime">Delete</string>
 </resources>

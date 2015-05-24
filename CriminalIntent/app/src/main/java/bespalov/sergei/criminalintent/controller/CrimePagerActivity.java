@@ -1,12 +1,12 @@
 package bespalov.sergei.criminalintent.controller;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -18,16 +18,19 @@ import bespalov.sergei.criminalintent.model.CrimeLab;
 /**
  * Created by sergei on 5/10/2015.
  */
-public class CrimePagerActivity extends FragmentActivity {
+public class CrimePagerActivity extends ActionBarActivity {
     ViewPager mViewPager;
     ArrayList<Crime> mCrimes;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewPager = new ViewPager(this);
-        mViewPager.setId(R.id.viewPpager);
-        setContentView(mViewPager);
+        setContentView(R.layout.activity_crime_pager);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        setSupportActionBar(toolbar);
+
+        mViewPager = (ViewPager) findViewById(R.id.pager);
         mCrimes = CrimeLab.getCrimeLab(this).getCrimes();
 
         FragmentManager fm = getSupportFragmentManager();
@@ -47,8 +50,8 @@ public class CrimePagerActivity extends FragmentActivity {
 
         //search clicked intent
         UUID id = (UUID) getIntent().getExtras().getSerializable(CrimeFragment.EXTRA_CRIME_ID);
-        for (Crime crime: mCrimes){
-            if(id.equals(crime.getId())){
+        for (Crime crime : mCrimes) {
+            if (id.equals(crime.getId())) {
                 int itemId = mCrimes.indexOf(crime);
                 mViewPager.setCurrentItem(itemId);
                 break;
@@ -65,7 +68,7 @@ public class CrimePagerActivity extends FragmentActivity {
             @Override
             public void onPageSelected(int position) {
                 Crime crime = mCrimes.get(position);
-                if (crime.getTitle() != null){
+                if (crime.getTitle() != null) {
                     setTitle(crime.getTitle());
                 }
             }
