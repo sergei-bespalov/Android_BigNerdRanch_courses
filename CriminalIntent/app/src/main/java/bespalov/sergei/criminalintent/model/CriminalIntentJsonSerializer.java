@@ -9,7 +9,9 @@ import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,7 +43,16 @@ public class CriminalIntentJsonSerializer {
         //writing file on a disk
         Writer writer = null;
         try {
-            OutputStream out = mContext.openFileOutput(mFileName, Context.MODE_PRIVATE);
+            OutputStream out;
+            if (isExternalStorageWritable() && isExternalStorageReadable()){
+                File file = new File(mContext.getExternalCacheDir().getPath() + mFileName);
+                if (!file.exists()){
+                    file.createNewFile();
+                }
+                out = new FileOutputStream(file);
+            }else {
+                out = mContext.openFileOutput(mFileName, Context.MODE_PRIVATE);
+            }
             writer = new OutputStreamWriter(out);
             writer.write(jsonArray.toString());
         } finally {
@@ -56,7 +67,13 @@ public class CriminalIntentJsonSerializer {
         ArrayList<Crime> crimes = new ArrayList<>();
         BufferedReader reader = null;
         try {
-            InputStream in = mContext.openFileInput(mFileName);
+            InputStream in;
+            if (isExternalStorageWritable() && isExternalStorageReadable()){
+                File file = new File(mContext.getExternalCacheDir().getPath() + mFileName);
+                in = new FileInputStream(file);
+            }else {
+                in = mContext.openFileInput(mFileName);
+            }
             Scanner scanner = new Scanner(in);
             StringBuilder jsonString = new StringBuilder();
             while (scanner.hasNextLine()) {
@@ -69,12 +86,31 @@ public class CriminalIntentJsonSerializer {
         } catch (FileNotFoundException e) {
             //nevermind
         } finally {
-            if (reader != null){
+            if (reader != null) {
                 reader.close();
             }
             return crimes;
         }
 
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
     }
 
 }
