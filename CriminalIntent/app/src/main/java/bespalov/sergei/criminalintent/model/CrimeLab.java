@@ -53,6 +53,10 @@ public class CrimeLab {
         mCrimes.add(crime);
     }
 
+    public void deleteCrime(Crime crime){
+        mCrimes.remove(crime);
+    }
+
     public boolean saveCrimes(){
         try {
             mSerializer.SaveCrimes(mCrimes);
