@@ -10,6 +10,8 @@ import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -19,7 +21,7 @@ import bespalov.sergei.criminalintent.R;
 /**
  * Created by sergei on 5/11/2015.
  */
-public class DateOrTimePickerFragment extends DialogFragment {
+public class DateOrTimePickerFragment extends SherlockDialogFragment {
 
     public static final String EXTAR_KEY_DATE = "bespalov.sergei.criminalintent.controller.dateortime.extra.key.date";
 

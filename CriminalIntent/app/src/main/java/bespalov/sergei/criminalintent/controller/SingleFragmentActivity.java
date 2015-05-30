@@ -3,24 +3,21 @@ package bespalov.sergei.criminalintent.controller;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import bespalov.sergei.criminalintent.R;
 
 /**
  * Created by sergei on 5/3/2015.
  */
-public abstract class SingleFragmentActivity extends ActionBarActivity{
+public abstract class SingleFragmentActivity extends SherlockFragmentActivity {
     protected abstract Fragment createFragment();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
-        setSupportActionBar(toolbar);
 
 
         FragmentManager fragmentManager = getSupportFragmentManager();

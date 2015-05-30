@@ -10,6 +10,8 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.DatePicker;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -19,7 +21,7 @@ import bespalov.sergei.criminalintent.R;
 /**
  * Created by sergei on 5/11/2015.
  */
-public class DatePickerFragment extends DialogFragment {
+public class DatePickerFragment extends SherlockDialogFragment {
     public static final String EXTRA_DATE = "bespalov.sergei.criminalintent.extra.date";
 
     Date mDate;

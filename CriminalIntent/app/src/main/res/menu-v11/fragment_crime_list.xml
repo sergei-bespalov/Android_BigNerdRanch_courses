@@ -5,9 +5,9 @@
         android:id="@+id/menu_item_new_crime"
         android:icon="@android:drawable/ic_menu_add"
         android:title="@string/new_crime"
-        app:showAsAction="ifRoom|withText"/>
+        android:showAsAction="ifRoom|withText"/>
     <item
         android:id="@+id/menu_item_show_subtitle"
-        app:showAsAction="ifRoom"
-        android:title="@string/show_subtitle"/>
+        android:title="@string/show_subtitle"
+        android:showAsAction="ifRoom|withText"/>
 </menu>

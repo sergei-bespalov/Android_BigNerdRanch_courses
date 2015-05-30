@@ -5,8 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -18,7 +18,7 @@ import bespalov.sergei.criminalintent.model.CrimeLab;
 /**
  * Created by sergei on 5/10/2015.
  */
-public class CrimePagerActivity extends ActionBarActivity {
+public class CrimePagerActivity extends SherlockFragmentActivity {
     ViewPager mViewPager;
     ArrayList<Crime> mCrimes;
 
@@ -26,9 +26,6 @@ public class CrimePagerActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crime_pager);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
-        setSupportActionBar(toolbar);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mCrimes = CrimeLab.getCrimeLab(this).getCrimes();

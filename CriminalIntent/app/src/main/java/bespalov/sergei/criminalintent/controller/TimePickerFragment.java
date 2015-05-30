@@ -12,6 +12,8 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TimePicker;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -21,7 +23,7 @@ import bespalov.sergei.criminalintent.R;
 /**
  * Created by sergei on 5/11/2015.
  */
-public class TimePickerFragment extends DialogFragment {
+public class TimePickerFragment extends SherlockDialogFragment {
 
     public static final String EXTRA_TIME = "bespalov.sergei.criminalintent.controller.extra.time";
     Date mTime;
