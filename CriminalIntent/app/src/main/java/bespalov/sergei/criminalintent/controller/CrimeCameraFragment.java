@@ -51,7 +51,7 @@ public class CrimeCameraFragment extends Fragment {
             public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int w, int h) {
                 if (mCamera == null) return;
                 Camera.Parameters parameters = mCamera.getParameters();
-                Camera.Size s = getBestSupportedSize(parameters.getSupportedPictureSizes(), w, h);
+                Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), w, h);
                 parameters.setPreviewSize(s.width, s.height);
                 mCamera.setParameters(parameters);
                 try {
