@@ -16,4 +16,5 @@
     <string name="subtitle">If you see something, say something.</string>
     <string name="delete_crime">Delete</string>
     <string name="crime_list_empty">Crime list is empty</string>
+    <string name="take">Take!</string>
 </resources>
