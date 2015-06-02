@@ -1,5 +1,8 @@
 package bespalov.sergei.criminalintent.controller;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.os.Build;
@@ -14,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import bespalov.sergei.criminalintent.R;
 
@@ -23,9 +28,53 @@ import bespalov.sergei.criminalintent.R;
 public class CrimeCameraFragment extends Fragment {
     private static final String TAG = "CrimeCameraFragment";
 
+    public static final String EXTRA_PHOTO_NAME = "sergei.bespalov.criminalintent.extra.crime.photo";
+
     private Camera mCamera;
     private SurfaceView mSurfaceView;
     private Button takePictureButton;
+    private View mProgressContainer;
+
+    private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
+        public void onShutter() {
+            mProgressContainer.setVisibility(View.VISIBLE);
+        }
+    };
+
+    private Camera.PictureCallback mPictureCallback = new Camera.PictureCallback() {
+
+        @Override
+        public void onPictureTaken(byte[] bytes, Camera camera) {
+            String fileName = UUID.randomUUID().toString() + ".jpg";
+            FileOutputStream os = null;
+            boolean success = true;
+            try {
+                os = getActivity().openFileOutput(fileName, Context.MODE_PRIVATE);
+            } catch (Exception e) {
+                Log.e(TAG, "Error writing to file " + fileName, e);
+                success = false;
+            } finally {
+                try {
+                    if (os != null) {
+                        os.close();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error closing file " + fileName, e);
+                }
+            }
+
+            if (success){
+                Log.d(TAG, "Picture saved at " + fileName);
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_PHOTO_NAME, fileName);
+                getActivity().setResult(Activity.RESULT_OK, intent);
+            }else {
+                getActivity().setResult(Activity.RESULT_CANCELED);
+            }
+
+            getActivity().finish();
+        }
+    };
 
     @Nullable
     @Override
@@ -38,11 +87,11 @@ public class CrimeCameraFragment extends Fragment {
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                if (mCamera != null){
+                if (mCamera != null) {
                     try {
                         mCamera.setPreviewDisplay(holder);
                     } catch (IOException e) {
-                        Log.e(TAG,"Error sitting up preview Display");
+                        Log.e(TAG, "Error sitting up preview Display");
                     }
                 }
             }
@@ -53,10 +102,12 @@ public class CrimeCameraFragment extends Fragment {
                 Camera.Parameters parameters = mCamera.getParameters();
                 Camera.Size s = getBestSupportedSize(parameters.getSupportedPreviewSizes(), w, h);
                 parameters.setPreviewSize(s.width, s.height);
+                s = getBestSupportedSize(parameters.getSupportedPictureSizes(), w, h);
+                parameters.setPictureSize(s.width, s.height);
                 mCamera.setParameters(parameters);
                 try {
                     mCamera.startPreview();
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.e(TAG, "Could not start preview", e);
                     mCamera.release();
                     mCamera = null;
@@ -65,7 +116,7 @@ public class CrimeCameraFragment extends Fragment {
 
             @Override
             public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-                if (mCamera != null){
+                if (mCamera != null) {
                     mCamera.stopPreview();
                 }
 
@@ -76,9 +127,14 @@ public class CrimeCameraFragment extends Fragment {
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().finish();
+                if (mCamera != null){
+                    mCamera.takePicture(mShutterCallback,null, mPictureCallback);
+                }
             }
         });
+
+        mProgressContainer = view.findViewById(R.id.crime_camera_progressContainer);
+        mProgressContainer.setVisibility(View.INVISIBLE);
 
         return view;
     }
@@ -101,12 +157,12 @@ public class CrimeCameraFragment extends Fragment {
         }
     }
 
-    private Size getBestSupportedSize(List<Size> sizes, int width, int height ){
+    private Size getBestSupportedSize(List<Size> sizes, int width, int height) {
         Size bestSize = sizes.get(0);
         int largestArea = bestSize.height * bestSize.width;
-        for (Camera.Size x: sizes){
+        for (Camera.Size x : sizes) {
             int area = x.width * x.height;
-            if (area > largestArea){
+            if (area > largestArea) {
                 bestSize = x;
                 largestArea = area;
             }

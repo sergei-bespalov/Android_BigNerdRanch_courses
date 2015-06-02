@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,9 +53,12 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_DATE = "date";
     private static final String DIALOG_TIME = "time";
     private static final String DIALOG_DATE_OR_TIME = "date_or_time";
+    private static final String TAG = "CrimeFragment";
+
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
     private static final int REQUEST_DATE_OR_TIME = 2;
+    private static final int REQUEST_PHOTO = 3;
 
     public static CrimeFragment newInstance(UUID id) {
         Bundle args = new Bundle();
@@ -153,7 +157,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), CrimeCameraActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_PHOTO);
             }
         });
 
@@ -219,9 +223,7 @@ public class CrimeFragment extends Fragment {
 
             updateDateButtonText();
             updateDateOrTimeButton();
-        }
-
-        if (requestCode == REQUEST_TIME) {
+        } else if (requestCode == REQUEST_TIME) {
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(mCrime.getDate());
@@ -241,9 +243,7 @@ public class CrimeFragment extends Fragment {
 
             updateTimeButtonText();
             updateDateOrTimeButton();
-        }
-
-        if (requestCode == REQUEST_DATE_OR_TIME) {
+        } else if (requestCode == REQUEST_DATE_OR_TIME) {
 
             Date date = (Date) data.getSerializableExtra(DateOrTimePickerFragment.EXTAR_KEY_DATE);
             mCrime.setDate(date);
@@ -251,7 +251,16 @@ public class CrimeFragment extends Fragment {
             updateDateButtonText();
             updateTimeButtonText();
             updateDateOrTimeButton();
+        }else if (requestCode == REQUEST_PHOTO){
+
+            String fileName = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_NAME);
+            if (fileName != null){
+                Log.i(TAG,"File name: " + fileName);
+            }
         }
+
+
+
     }
 
     private void updateDateButtonText() {
