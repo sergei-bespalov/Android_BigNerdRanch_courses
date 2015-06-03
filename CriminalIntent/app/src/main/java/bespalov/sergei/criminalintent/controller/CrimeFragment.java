@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,6 +29,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -36,6 +39,8 @@ import java.util.UUID;
 import bespalov.sergei.criminalintent.R;
 import bespalov.sergei.criminalintent.model.Crime;
 import bespalov.sergei.criminalintent.model.CrimeLab;
+import bespalov.sergei.criminalintent.model.Photo;
+import bespalov.sergei.criminalintent.utils.PictureUtils;
 
 /**
  * Fragment for Crime
@@ -48,6 +53,7 @@ public class CrimeFragment extends Fragment {
     private Button mTimeOrDateButton;
     private ImageButton mPhotoButton;
     private CheckBox mSolvedCheckBox;
+    private ImageView mPhotoView;
 
     public static final String EXTRA_CRIME_ID = "sergei.bespalov.criminalintent.extra.crime.id";
     private static final String DIALOG_DATE = "date";
@@ -166,7 +172,21 @@ public class CrimeFragment extends Fragment {
             mPhotoButton.setEnabled(false);
         }
 
+        mPhotoView = (ImageView) view.findViewById(R.id.crime_imageView);
+
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        showPhoto();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        PictureUtils.cleanImageView(mPhotoView);
     }
 
     @Override
@@ -255,7 +275,10 @@ public class CrimeFragment extends Fragment {
 
             String fileName = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_NAME);
             if (fileName != null){
-                Log.i(TAG,"File name: " + fileName);
+                Photo photo = new Photo(fileName);
+                mCrime.setPhoto(photo);
+                Log.i(TAG,"Crime " + mCrime.getTitle() + " has a photo");
+                showPhoto();
             }
         }
 
@@ -277,4 +300,15 @@ public class CrimeFragment extends Fragment {
         String date = DateFormat.format("EEEE, MMM d, yyyy kk:mm", mCrime.getDate()).toString();
         mTimeOrDateButton.setText(date);
     }
+
+    private void showPhoto(){
+        Photo photo = mCrime.getPhoto();
+        BitmapDrawable drawable = null;
+        if (photo != null){
+            String path = getActivity().getFileStreamPath(photo.getFileName()).getAbsolutePath();
+            drawable = PictureUtils.getScaledDrawable(getActivity(), path);
+        }
+        mPhotoView.setImageDrawable(drawable);
+    }
+
 }
