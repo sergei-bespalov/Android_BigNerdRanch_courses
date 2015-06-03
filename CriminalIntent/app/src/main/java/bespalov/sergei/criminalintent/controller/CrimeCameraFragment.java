@@ -50,6 +50,7 @@ public class CrimeCameraFragment extends Fragment {
             boolean success = true;
             try {
                 os = getActivity().openFileOutput(fileName, Context.MODE_PRIVATE);
+                os.write(bytes);
             } catch (Exception e) {
                 Log.e(TAG, "Error writing to file " + fileName, e);
                 success = false;

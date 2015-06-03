@@ -59,6 +59,7 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_DATE = "date";
     private static final String DIALOG_TIME = "time";
     private static final String DIALOG_DATE_OR_TIME = "date_or_time";
+    private static final String DIALOG_SHOW_PHOTO = "photo";
     private static final String TAG = "CrimeFragment";
 
     private static final int REQUEST_DATE = 0;
@@ -173,6 +174,16 @@ public class CrimeFragment extends Fragment {
         }
 
         mPhotoView = (ImageView) view.findViewById(R.id.crime_imageView);
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Photo photo = mCrime.getPhoto();
+                if (photo == null) return;
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                String path = getActivity().getFileStreamPath(photo.getFileName()).getAbsolutePath();
+                ImageFragment.newInstance(path).show(fm, DIALOG_SHOW_PHOTO);
+            }
+        });
 
         return view;
     }
