@@ -1,16 +1,19 @@
 package bespalov.sergei.criminalintent.controller;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -34,6 +37,7 @@ public class CrimeCameraFragment extends Fragment {
     private SurfaceView mSurfaceView;
     private Button takePictureButton;
     private View mProgressContainer;
+    private OrientationEventListener mOrientationEventListener;
 
     private Camera.ShutterCallback mShutterCallback = new Camera.ShutterCallback() {
         public void onShutter() {
@@ -51,6 +55,7 @@ public class CrimeCameraFragment extends Fragment {
             try {
                 os = getActivity().openFileOutput(fileName, Context.MODE_PRIVATE);
                 os.write(bytes);
+
             } catch (Exception e) {
                 Log.e(TAG, "Error writing to file " + fileName, e);
                 success = false;
@@ -64,18 +69,57 @@ public class CrimeCameraFragment extends Fragment {
                 }
             }
 
-            if (success){
+            if (success) {
                 Log.d(TAG, "Picture saved at " + fileName);
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_PHOTO_NAME, fileName);
                 getActivity().setResult(Activity.RESULT_OK, intent);
-            }else {
+            } else {
                 getActivity().setResult(Activity.RESULT_CANCELED);
             }
 
             getActivity().finish();
         }
     };
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mOrientationEventListener = new OrientationEventListener(getActivity()) {
+
+            @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+            @Override
+            public void onOrientationChanged(int orientation) {
+                Log.d(TAG, "Orientation changed to " + orientation);
+
+                if (orientation == ORIENTATION_UNKNOWN || mCamera == null)
+                    return;
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD)
+                    return;
+
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(0, info);
+                orientation = (orientation + 45) / 90 * 90;
+                int rotation = 0;
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                    rotation = (info.orientation - orientation + 360) % 360;
+                } else { // back-facing camera
+                    rotation = (info.orientation + orientation) % 360;
+                }
+                Camera.Parameters params = mCamera.getParameters();
+                params.setRotation(rotation);
+                Log.d(TAG, "Setting camera rotation to " + rotation);
+                mCamera.setParameters(params);
+            }
+        };
+
+        if (mOrientationEventListener.canDetectOrientation()){
+            mOrientationEventListener.enable();
+        }
+
+    }
 
     @Nullable
     @Override
@@ -128,8 +172,8 @@ public class CrimeCameraFragment extends Fragment {
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mCamera != null){
-                    mCamera.takePicture(mShutterCallback,null, mPictureCallback);
+                if (mCamera != null) {
+                    mCamera.takePicture(mShutterCallback, null, mPictureCallback);
                 }
             }
         });

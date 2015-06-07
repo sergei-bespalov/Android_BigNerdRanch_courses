@@ -1,8 +1,6 @@
 package bespalov.sergei.criminalintent.controller;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -13,9 +11,6 @@ import android.widget.ImageView;
 
 import bespalov.sergei.criminalintent.utils.PictureUtils;
 
-/**
- * Created by sergei on 6/3/2015.
- */
 public class ImageFragment extends DialogFragment {
 
     public static final String EXTRA_IMAGE_PATH = "bespalov.sergei.criminalintent.controller.ImageFragment.extra.imagePath";
@@ -41,7 +36,7 @@ public class ImageFragment extends DialogFragment {
         super.onDestroyView();
     }
 
-    public static ImageFragment newInstance(String path){
+    public static ImageFragment newInstance(String path) {
         ImageFragment imageFragment = new ImageFragment();
 
         Bundle args = new Bundle();

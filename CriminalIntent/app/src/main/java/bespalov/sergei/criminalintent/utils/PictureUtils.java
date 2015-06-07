@@ -3,9 +3,14 @@ package bespalov.sergei.criminalintent.utils;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ExifInterface;
 import android.view.Display;
 import android.widget.ImageView;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by sergei on 6/3/2015.
@@ -48,5 +53,27 @@ public class PictureUtils {
         if (drawable.getBitmap() == null) return;
         drawable.getBitmap().recycle();
         imageView.setImageDrawable(null);
+    }
+
+
+    public static Bitmap rotateImage(Bitmap source, int angle) {
+
+        Bitmap bitmap = null;
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        try {
+            bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                    matrix, true);
+        } catch (OutOfMemoryError err) {
+            err.printStackTrace();
+        }
+        return bitmap;
+    }
+
+    public static void ClearFile(String path){
+        File file = new File(path);
+        if (file.exists()){
+            file.delete();
+        }
     }
 }

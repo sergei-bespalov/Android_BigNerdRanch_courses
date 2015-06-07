@@ -286,6 +286,11 @@ public class CrimeFragment extends Fragment {
 
             String fileName = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_NAME);
             if (fileName != null){
+                if (mCrime.getPhoto() != null){
+                    Photo photo = mCrime.getPhoto();
+                    PictureUtils.ClearFile(getActivity().getFileStreamPath(photo.getFileName()).getAbsolutePath());
+                    mCrime.setPhoto(null);
+                }
                 Photo photo = new Photo(fileName);
                 mCrime.setPhoto(photo);
                 Log.i(TAG,"Crime " + mCrime.getTitle() + " has a photo");

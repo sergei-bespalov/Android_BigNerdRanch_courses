@@ -28,4 +28,5 @@ public class CrimeCameraActivity extends SingleFragmentActivity {
     protected Fragment createFragment() {
         return new CrimeCameraFragment();
     }
+
 }
