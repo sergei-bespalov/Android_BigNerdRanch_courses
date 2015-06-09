@@ -17,4 +17,15 @@
     <string name="delete_crime">Delete</string>
     <string name="crime_list_empty">Crime list is empty</string>
     <string name="take">Take!</string>
+    <string name="crime_suspect_text">Choose Suspect</string>
+    <string name="crime_send_report_text">Send Report</string>
+    <string name="crime_report">%1$s! The crime was discovered on %2$s. %3$s, and %4$s</string>
+    <string name="crime_report_solved">The case is solved</string>
+    <string name="crime_report_unsolved">The case is not solved</string>
+    <string name="crime_report_no_suspect">There is no suspect.</string>
+    <string name="crime_report_suspect">The suspect is %s.</string>
+    <string name="crime_report_subject">CriminalIntent Crime Report</string>
+    <string name="send_report">Send crime report via</string>
+    <string name="crime_call_text">Call to suspect</string>
+    <string name="crime_no_phone_number">There is no phone number</string>
 </resources>
