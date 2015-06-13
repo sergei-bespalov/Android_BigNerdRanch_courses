@@ -52,7 +52,7 @@ import bespalov.sergei.criminalintent.utils.PictureUtils;
 /**
  * Fragment for Crime
  */
-public class CrimeFragment extends Fragment {
+public class CrimeFragment extends Fragment{
     private Crime mCrime;
     private EditText mEditText;
     private Button mDateButton;
@@ -78,12 +78,33 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_PHOTO = 3;
     private static final int REQUEST_CONTACT = 4;
 
+    private Callback mCallback;
+
+    /**
+     * required callback for host-activity
+     */
+    public interface Callback{
+        void onCrimeUpdated(Crime crime);
+    }
+
     public static CrimeFragment newInstance(UUID id) {
         Bundle args = new Bundle();
         args.putSerializable(EXTRA_CRIME_ID, id);
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallback = (Callback) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback =null;
     }
 
     @TargetApi(11)
@@ -117,6 +138,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
                 mCrime.setTitle(charSequence.toString());
+                mCallback.onCrimeUpdated(mCrime);
             }
 
             @Override
@@ -167,6 +189,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mCrime.setSolved(b);
+                mCallback.onCrimeUpdated(mCrime);
             }
         });
 
@@ -304,6 +327,7 @@ public class CrimeFragment extends Fragment {
 
             updateDateButtonText();
             updateDateOrTimeButton();
+            mCallback.onCrimeUpdated(mCrime);
         } else if (requestCode == REQUEST_TIME) {
 
             Calendar calendar = Calendar.getInstance();
@@ -324,6 +348,7 @@ public class CrimeFragment extends Fragment {
 
             updateTimeButtonText();
             updateDateOrTimeButton();
+            mCallback.onCrimeUpdated(mCrime);
         } else if (requestCode == REQUEST_DATE_OR_TIME) {
 
             Date date = (Date) data.getSerializableExtra(DateOrTimePickerFragment.EXTAR_KEY_DATE);
@@ -332,6 +357,7 @@ public class CrimeFragment extends Fragment {
             updateDateButtonText();
             updateTimeButtonText();
             updateDateOrTimeButton();
+            mCallback.onCrimeUpdated(mCrime);
         }else if (requestCode == REQUEST_PHOTO){
             String fileName = data.getStringExtra(CrimeCameraFragment.EXTRA_PHOTO_NAME);
             if (fileName != null){
@@ -344,6 +370,7 @@ public class CrimeFragment extends Fragment {
                 mCrime.setPhoto(photo);
                 Log.i(TAG,"Crime " + mCrime.getTitle() + " has a photo");
                 showPhoto();
+                mCallback.onCrimeUpdated(mCrime);
             }
         }else if (requestCode == REQUEST_CONTACT){
             Uri uri = data.getData();
@@ -389,6 +416,7 @@ public class CrimeFragment extends Fragment {
             }
 
             cursor.close();
+            mCallback.onCrimeUpdated(mCrime);
         }
 
 

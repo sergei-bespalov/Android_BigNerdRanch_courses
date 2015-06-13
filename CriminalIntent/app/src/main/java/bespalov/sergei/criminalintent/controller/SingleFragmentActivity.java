@@ -8,16 +8,17 @@ import android.support.v7.widget.Toolbar;
 
 import bespalov.sergei.criminalintent.R;
 
-/**
- * Created by sergei on 5/3/2015.
- */
 public abstract class SingleFragmentActivity extends ActionBarActivity{
     protected abstract Fragment createFragment();
+
+    public int getLayoutResourceId(){
+        return R.layout.activity_fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(getLayoutResourceId());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
         setSupportActionBar(toolbar);
@@ -25,13 +26,13 @@ public abstract class SingleFragmentActivity extends ActionBarActivity{
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        Fragment fragment = fragmentManager.findFragmentById(R.id.fragment_container);
+        Fragment fragment = fragmentManager.findFragmentById(R.id.fragmentContainer);
 
         if (fragment == null) {
             fragment = createFragment();
             fragmentManager
                     .beginTransaction()
-                    .add(R.id.fragment_container, fragment)
+                    .add(R.id.fragmentContainer, fragment)
                     .commit();
         }
     }

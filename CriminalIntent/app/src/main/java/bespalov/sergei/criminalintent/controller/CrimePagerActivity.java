@@ -18,7 +18,7 @@ import bespalov.sergei.criminalintent.model.CrimeLab;
 /**
  * Created by sergei on 5/10/2015.
  */
-public class CrimePagerActivity extends ActionBarActivity {
+public class CrimePagerActivity extends ActionBarActivity implements CrimeFragment.Callback {
     ViewPager mViewPager;
     ArrayList<Crime> mCrimes;
 
@@ -79,4 +79,7 @@ public class CrimePagerActivity extends ActionBarActivity {
             }
         });
     }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {}
 }

@@ -1,6 +1,7 @@
 package bespalov.sergei.criminalintent.controller;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,8 +39,26 @@ public class CrimeListFragment extends ListFragment {
     private ArrayList<Crime> mCrimes;
     private static final String TAG = "CrimeListFragment";
     private boolean mSubtitleVisible;
+    private Callback mCallback;
 
+    /**
+     * required interface for host-activity
+     */
+    public interface Callback{
+        void onCrimeSelected(Crime crime);
+    }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallback = (Callback) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -131,9 +150,7 @@ public class CrimeListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         Crime crime = (Crime) getListAdapter().getItem(position);
         Log.d(TAG, crime.getTitle() + "was clicked");
-        Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
-        intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
-        startActivity(intent);
+        mCallback.onCrimeSelected(crime);
     }
 
     @Override
@@ -199,9 +216,12 @@ public class CrimeListFragment extends ListFragment {
     private void createNewCrime(){
         Crime crime = new Crime();
         CrimeLab.getCrimeLab(getActivity()).addCrime(crime);
-        Intent intent = new Intent(getActivity(), CrimePagerActivity.class);
-        intent.putExtra(CrimeFragment.EXTRA_CRIME_ID, crime.getId());
-        startActivityForResult(intent, 0);
+        ((CrimeAdapter)getListAdapter()).notifyDataSetChanged();
+        mCallback.onCrimeSelected(crime);
+    }
+
+    public void updateUI(){
+        ((CrimeAdapter)getListAdapter()).notifyDataSetChanged();
     }
 
     private class CrimeAdapter extends ArrayAdapter<Crime> {
@@ -225,4 +245,5 @@ public class CrimeListFragment extends ListFragment {
             return view;
         }
     }
+
 }
