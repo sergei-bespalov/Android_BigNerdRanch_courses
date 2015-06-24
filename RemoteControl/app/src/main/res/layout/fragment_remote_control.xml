@@ -5,6 +5,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/remote_background"
     android:stretchColumns="*">
 
     <TextView
@@ -15,6 +16,8 @@
         android:gravity="center"
         android:text="0"
         android:textSize="50dp"
+        android:textColor="#ffffff"
+        android:background="@drawable/window_patch"
         />
 
     <TextView
@@ -22,11 +25,11 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#555555"
         android:gravity="center"
         android:text="0"
-        android:textColor="#cccccc"
         android:textSize="20dp"
+        android:textStyle="italic"
+        android:background="@drawable/bar_patch"
         />
 
     <include
