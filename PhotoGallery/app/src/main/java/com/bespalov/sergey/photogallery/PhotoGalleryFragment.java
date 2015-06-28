@@ -4,18 +4,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
 
 import com.bespalov.sergey.photogallery.model.FlickrFetchr;
+import com.bespalov.sergey.photogallery.model.GalleryItem;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
 public class PhotoGalleryFragment extends Fragment {
     private GridView mGridView;
+    private ArrayList<GalleryItem> mItems;
 
     public static final String TAG = "PhotoGalleryFragment";
 
@@ -36,20 +38,32 @@ public class PhotoGalleryFragment extends Fragment {
 
         mGridView = (GridView) view.findViewById(R.id.gridView);
 
+        setupAdapter();
+
         return view;
     }
 
-    private class FetchFlickrItemTask extends AsyncTask<Void, Void, Void>{
+    private class FetchFlickrItemTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
 
         @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                String result = new FlickrFetchr().getUrl("http://www.google.com");
-                Log.i(TAG, "Fetch content of URL result: " + result);
-            }catch (IOException e){
-                Log.e(TAG, "Failed to fetch url: ", e);
-            }
-            return null;
+        protected ArrayList<GalleryItem> doInBackground(Void... params) {
+            return new FlickrFetchr().fetchItems();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<GalleryItem> items) {
+            mItems = items;
+            setupAdapter();
+        }
+    }
+
+    void setupAdapter() {
+        if (getActivity() == null || mGridView == null) return;
+
+        if (mItems != null) {
+            mGridView.setAdapter(new ArrayAdapter<GalleryItem>(getActivity(), android.R.layout.simple_gallery_item, mItems));
+        } else {
+            mGridView.setAdapter(null);
         }
     }
 }
