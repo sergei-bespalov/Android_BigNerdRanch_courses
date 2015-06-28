@@ -25,6 +25,9 @@ public class FlickrFetchr {
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
     private static final String PARAM_EXTRAS = "extra";
     private static final String EXTRA_SMALL_URL = "url_s";
+    private static final String PARAM_PAGE = "page";
+
+    private static final int pageCount = 10;
 
     public static final String XML_PHOTO = "photo";
 
@@ -56,17 +59,25 @@ public class FlickrFetchr {
         ArrayList<GalleryItem> items = new ArrayList<>();
 
         try {
-            String URL = Uri.parse(ENDPOINT).buildUpon()
-                    .appendQueryParameter("method", METHOD_GET_RECENT)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL).build().toString();
-            String xmlString = getUrl(URL);
-            Log.i(TAG, "Recived xml: " + xmlString);
+            String URL;
+            String xmlString;
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
-            parser.setInput(new StringReader(xmlString));
+            for (int page = 1; page <= pageCount; ++page) {
+                URL = Uri.parse(ENDPOINT).buildUpon()
+                        .appendQueryParameter("method", METHOD_GET_RECENT)
+                        .appendQueryParameter("api_key", API_KEY)
+                        .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                        .appendQueryParameter(PARAM_PAGE, String.valueOf(page))
+                        .build().toString();
 
-            parseItems(items, parser);
+                xmlString = getUrl(URL);
+                Log.i(TAG, "Recived xml: " + xmlString);
+
+                parser.setInput(new StringReader(xmlString));
+                parseItems(items, parser);
+            }
+
         } catch (IOException ioe) {
             Log.e(TAG, "Failed to fetch items", ioe);
         } catch (XmlPullParserException xppe) {
