@@ -1,8 +1,10 @@
 package com.bespalov.sergey.photogallery;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -36,7 +38,16 @@ public class PhotoGalleryFragment extends Fragment {
 
         new FetchFlickrItemTask().execute();
 
-        mTumbnailThread = new TumbnailDownloader<>();
+        mTumbnailThread = new TumbnailDownloader<>(new Handler());
+        mTumbnailThread.setListener(new TumbnailDownloader.Listener<ImageView>() {
+
+            @Override
+            public void onTumbnailDownloaded(ImageView imageView, Bitmap thumbnail) {
+                if (isVisible()){
+                    imageView.setImageBitmap(thumbnail);
+                }
+            }
+        });
         mTumbnailThread.start();
         mTumbnailThread.getLooper();
         Log.i(TAG, "Background thread started");
@@ -59,6 +70,12 @@ public class PhotoGalleryFragment extends Fragment {
         setupAdapter();
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mTumbnailThread.clearQueue();
     }
 
     private class FetchFlickrItemTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {

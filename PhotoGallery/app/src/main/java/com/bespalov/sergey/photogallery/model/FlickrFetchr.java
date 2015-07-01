@@ -26,6 +26,11 @@ public class FlickrFetchr {
     private static final String PARAM_EXTRAS = "extra";
     private static final String EXTRA_SMALL_URL = "url_s";
     private static final String PARAM_PAGE = "page";
+    private static final String FARM = "farm";
+    private static final String SERVER_ID = "server";
+    private static final String PHOTO_ID = "id";
+    private static final String SECRET = "secret";
+    private static final String LARGE_SQUARE = "q";
 
     private static final int pageCount = 10;
 
@@ -93,14 +98,24 @@ public class FlickrFetchr {
             if (eventType == XmlPullParser.START_TAG && XML_PHOTO.equals(parser.getName())) {
                 String id = parser.getAttributeValue(null, "id");
                 String caption = parser.getAttributeValue(null, "title");
-                String smallUrl = parser.getAttributeValue(null, EXTRA_SMALL_URL);
+                //String smallUrl = parser.getAttributeValue(null, EXTRA_SMALL_URL);
+                String farm = parser.getAttributeValue(null,FARM);
+                String serverId = parser.getAttributeValue(null, SERVER_ID);
+                String photoId = parser.getAttributeValue(null, PHOTO_ID);
+                String secret = parser.getAttributeValue(null, SECRET);
+                String format = LARGE_SQUARE;
+                String url = makePhotoUrl(farm, serverId, photoId, secret, format);
                 GalleryItem item = new GalleryItem();
                 item.setId(id);
                 item.setCaption(caption);
-                item.setUrl(smallUrl);
+                item.setUrl(url);
                 items.add(item);
             }
             eventType = parser.next();
         }
+    }
+
+    private String makePhotoUrl(String farm, String serverId, String photoId, String secret, String format){
+        return "https://farm" + farm + ".staticflickr.com/" + serverId + "/" + photoId + "_" + secret + "_" + format + ".jpg";
     }
 }

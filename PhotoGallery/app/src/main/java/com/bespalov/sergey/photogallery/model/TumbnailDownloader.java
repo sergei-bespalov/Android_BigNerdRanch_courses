@@ -1,5 +1,6 @@
 package com.bespalov.sergey.photogallery.model;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
@@ -17,14 +18,29 @@ public class TumbnailDownloader<Token> extends HandlerThread {
     private static final int MESSAGE_DOWNLOAD = 0;
 
     Handler mHandler;
-
     Map<Token, String> requestMap = Collections.synchronizedMap(new HashMap<Token, String>());
+    Handler mResponseHandler;
+    Listener<Token> mListener;
 
-    public TumbnailDownloader(){
+    public TumbnailDownloader(Handler responseHandler){
         super(TAG);
+        mResponseHandler = responseHandler;
     }
 
-    @SuppressWarnings("HandlerLeak")
+    public interface Listener<Token>{
+        void onTumbnailDownloaded(Token token, Bitmap thumbnail);
+    }
+
+    public void setListener(Listener<Token> listener) {
+        mListener = listener;
+    }
+
+    public void clearQueue(){
+        mHandler.removeMessages(MESSAGE_DOWNLOAD);
+        requestMap.clear();
+    }
+
+
     @Override
     protected void onLooperPrepared(){
         mHandler = new Handler(){
@@ -44,8 +60,7 @@ public class TumbnailDownloader<Token> extends HandlerThread {
         Log.i(TAG, "Got an URL: " + url);
         requestMap.put(token,url);
 
-        mHandler
-                .obtainMessage(MESSAGE_DOWNLOAD, token)
+        mHandler.obtainMessage(MESSAGE_DOWNLOAD, token)
                 .sendToTarget();
     }
 
@@ -57,6 +72,17 @@ public class TumbnailDownloader<Token> extends HandlerThread {
             byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
             final Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
             Log.i(TAG, "Bitmap created");
+
+            mResponseHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    //noinspection StringEquality
+                    if (requestMap.get(token) != url)
+                        return;
+                    requestMap.remove(token);
+                    mListener.onTumbnailDownloaded(token, bitmap);
+                }
+            });
         }catch (IOException ioe){
             Log.e(TAG, "Error downloading image", ioe);
         }
