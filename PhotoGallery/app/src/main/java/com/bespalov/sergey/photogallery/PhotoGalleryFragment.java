@@ -119,6 +119,20 @@ public class PhotoGalleryFragment extends Fragment {
             GalleryItem item = getItem(position);
             mTumbnailThread.queueThumbnail(imageView, item.getUrl());
 
+            //preloading
+            int preposition = position - 1;
+            while (preposition >= 0 && preposition >= position - 10){
+                item = getItem(preposition);
+                mTumbnailThread.queuePreload(item.getUrl());
+                --preposition;
+            }
+            preposition = position + 1;
+            while (preposition < getCount() && preposition <= position + 10){
+                item = getItem(preposition);
+                mTumbnailThread.queuePreload(item.getUrl());
+                ++preposition;
+            }
+
             return convertView;
         }
     }
