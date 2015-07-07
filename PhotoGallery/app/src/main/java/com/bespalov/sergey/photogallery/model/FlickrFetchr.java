@@ -2,6 +2,7 @@ package com.bespalov.sergey.photogallery.model;
 
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -23,18 +24,23 @@ public class FlickrFetchr {
     private static final String ENDPOINT = "https://api.flickr.com/services/rest/";
     private static final String API_KEY = "03301b9a7cfb5dd7ad658b2fe9f9847a";
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
+    private static final String METHOD_PHOTO_SEARCH = "flickr.photos.search";
     private static final String PARAM_EXTRAS = "extra";
     private static final String EXTRA_SMALL_URL = "url_s";
+    private static final String TOTAL_RESULTS = "total";
     private static final String PARAM_PAGE = "page";
     private static final String FARM = "farm";
     private static final String SERVER_ID = "server";
     private static final String PHOTO_ID = "id";
     private static final String SECRET = "secret";
     private static final String LARGE_SQUARE = "q";
+    private static final String PARAM_TEXT = "text";
 
     private static final int pageCount = 10;
 
     public static final String XML_PHOTO = "photo";
+    public static final String XML_PHOTOS = "photos";
+    public static final String PREF_SEARCH_QUERY = "searchQuery";
 
     byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
@@ -60,28 +66,19 @@ public class FlickrFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public ArrayList<GalleryItem> fetchItems() {
+    public ArrayList<GalleryItem> downloadGalleryItems(String URL) {
         ArrayList<GalleryItem> items = new ArrayList<>();
 
         try {
-            String URL;
             String xmlString;
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
-            for (int page = 1; page <= pageCount; ++page) {
-                URL = Uri.parse(ENDPOINT).buildUpon()
-                        .appendQueryParameter("method", METHOD_GET_RECENT)
-                        .appendQueryParameter("api_key", API_KEY)
-                        .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                        .appendQueryParameter(PARAM_PAGE, String.valueOf(page))
-                        .build().toString();
 
-                xmlString = getUrl(URL);
-                Log.i(TAG, "Recived xml: " + xmlString);
+            xmlString = getUrl(URL);
+            Log.i(TAG, "Recived xml: " + xmlString);
 
-                parser.setInput(new StringReader(xmlString));
-                parseItems(items, parser);
-            }
+            parser.setInput(new StringReader(xmlString));
+            parseItems(items, parser);
 
         } catch (IOException ioe) {
             Log.e(TAG, "Failed to fetch items", ioe);
@@ -91,15 +88,60 @@ public class FlickrFetchr {
         return items;
     }
 
-    public void parseItems(ArrayList<GalleryItem> items, XmlPullParser parser) throws XmlPullParserException, IOException {
-        int eventType = parser.next();
+    public ArrayList<GalleryItem> fetchItems() {
+        String URL = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_GET_RECENT)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .build().toString();
+        return downloadGalleryItems(URL);
+    }
 
+    public ArrayList<GalleryItem> search(String text){
+        String URL = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_PHOTO_SEARCH)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .appendQueryParameter(PARAM_TEXT, text)
+                .build().toString();
+        return downloadGalleryItems(URL);
+    }
+
+    public int getTotalResultsForSearch(String text){
+        String URL = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_PHOTO_SEARCH)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .appendQueryParameter(PARAM_TEXT, text)
+                .build().toString();
+        try {
+            String xmlString = getUrl(URL);
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            int eventType = parser.next();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && XML_PHOTOS.equals(parser.getName())){
+                    String total = parser.getAttributeValue(null, TOTAL_RESULTS);
+                    return Integer.parseInt(total);
+                }
+                parser.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+
+    public void parseItems(ArrayList<GalleryItem> items, XmlPullParser parser) throws XmlPullParserException, IOException {
+
+        int eventType = parser.next();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG && XML_PHOTO.equals(parser.getName())) {
                 String id = parser.getAttributeValue(null, "id");
                 String caption = parser.getAttributeValue(null, "title");
                 //String smallUrl = parser.getAttributeValue(null, EXTRA_SMALL_URL);
-                String farm = parser.getAttributeValue(null,FARM);
+                String farm = parser.getAttributeValue(null, FARM);
                 String serverId = parser.getAttributeValue(null, SERVER_ID);
                 String photoId = parser.getAttributeValue(null, PHOTO_ID);
                 String secret = parser.getAttributeValue(null, SECRET);
@@ -115,7 +157,7 @@ public class FlickrFetchr {
         }
     }
 
-    private String makePhotoUrl(String farm, String serverId, String photoId, String secret, String format){
+    private String makePhotoUrl(String farm, String serverId, String photoId, String secret, String format) {
         return "https://farm" + farm + ".staticflickr.com/" + serverId + "/" + photoId + "_" + secret + "_" + format + ".jpg";
     }
 }
