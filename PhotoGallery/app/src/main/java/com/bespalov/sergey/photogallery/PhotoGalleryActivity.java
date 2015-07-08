@@ -39,7 +39,8 @@ public class PhotoGalleryActivity extends SingleFragmentActivity {
 
     @Override
     public void startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData, boolean globalSearch) {
-
+        PhotoGalleryFragment fragment = (PhotoGalleryFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        fragment.searchStarted();
         super.startSearch(initialQuery, selectInitialQuery, appSearchData, globalSearch);
     }
 }

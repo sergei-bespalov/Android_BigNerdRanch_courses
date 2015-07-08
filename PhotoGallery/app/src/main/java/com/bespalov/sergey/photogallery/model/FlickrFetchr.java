@@ -42,6 +42,8 @@ public class FlickrFetchr {
     public static final String XML_PHOTOS = "photos";
     public static final String PREF_SEARCH_QUERY = "searchQuery";
 
+    private int mResultCount = 0;
+
     byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -107,31 +109,9 @@ public class FlickrFetchr {
         return downloadGalleryItems(URL);
     }
 
-    public int getTotalResultsForSearch(String text){
-        String URL = Uri.parse(ENDPOINT).buildUpon()
-                .appendQueryParameter("method", METHOD_PHOTO_SEARCH)
-                .appendQueryParameter("api_key", API_KEY)
-                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                .appendQueryParameter(PARAM_TEXT, text)
-                .build().toString();
-        try {
-            String xmlString = getUrl(URL);
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            XmlPullParser parser = factory.newPullParser();
-            int eventType = parser.next();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && XML_PHOTOS.equals(parser.getName())){
-                    String total = parser.getAttributeValue(null, TOTAL_RESULTS);
-                    return Integer.parseInt(total);
-                }
-                parser.next();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
+    public int getResultsCount(){
+        return mResultCount;
     }
-
 
     public void parseItems(ArrayList<GalleryItem> items, XmlPullParser parser) throws XmlPullParserException, IOException {
 
@@ -152,6 +132,12 @@ public class FlickrFetchr {
                 item.setCaption(caption);
                 item.setUrl(url);
                 items.add(item);
+            }
+            if (eventType == XmlPullParser.START_TAG && XML_PHOTOS.equals(parser.getName())){
+                String total = parser.getAttributeValue(null, TOTAL_RESULTS);
+                if (total != null){
+                    mResultCount = Integer.parseInt(total);
+                }
             }
             eventType = parser.next();
         }

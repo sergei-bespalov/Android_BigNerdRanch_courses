@@ -152,6 +152,7 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private class FetchFlickrItemTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
+        private int mTotal = 0;
 
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... params) {
@@ -166,9 +167,10 @@ public class PhotoGalleryFragment extends Fragment {
                     .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
 
             if (query != null) {
-                Toast.makeText(getActivity(), "Found" + String.valueOf(new FlickrFetchr().getTotalResultsForSearch(query)), Toast.LENGTH_SHORT)
-                        .show();
-                return new FlickrFetchr().search(query);
+                FlickrFetchr fetchr = new FlickrFetchr();
+                ArrayList<GalleryItem> vItems = fetchr.search(query);
+                mTotal = fetchr.getResultsCount();
+                return vItems;
             } else return new FlickrFetchr().fetchItems();
         }
 
@@ -176,6 +178,10 @@ public class PhotoGalleryFragment extends Fragment {
         protected void onPostExecute(ArrayList<GalleryItem> items) {
             mItems = items;
             setupAdapter();
+            if (mTotal > 0){
+                Toast.makeText(getActivity(), "Found " + String.valueOf(mTotal), Toast.LENGTH_SHORT)
+                        .show();
+            }
         }
     }
 
