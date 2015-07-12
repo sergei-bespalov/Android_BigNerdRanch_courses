@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -96,7 +97,7 @@ public class PhotoGalleryFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_photo_gallery, menu);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem searchItem = menu.findItem(R.id.menu_search);
             mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
@@ -109,6 +110,18 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem toggleMenuItem = menu.findItem(R.id.menu_item_toggle_polling);
+        if (PollService.isServiceAlarmOn(getActivity())){
+            toggleMenuItem.setTitle(R.string.stop_polling);
+        }else {
+            toggleMenuItem.setTitle(R.string.start_polling);
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_search:
@@ -117,9 +130,15 @@ public class PhotoGalleryFragment extends Fragment {
             case R.id.menu_clear:
                 PreferenceManager.getDefaultSharedPreferences(getActivity())
                         .edit()
-                        .putString(FlickrFetchr.PREF_SEARCH_QUERY,null)
+                        .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
                         .commit();
                 updateItems();
+                return true;
+            case R.id.menu_item_toggle_polling:
+                boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
+                PollService.setServiceAlarm(getActivity(), shouldStartAlarm);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                    getActivity().invalidateOptionsMenu();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -140,15 +159,15 @@ public class PhotoGalleryFragment extends Fragment {
         new FetchFlickrItemTask().execute();
     }
 
-    void searchStarted(){
+    void searchStarted() {
         String query =
                 PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
-    if (query != null && mSearchView != null){
-        mSearchView.setIconified(false);
-        mSearchView.setQueryHint(query);
-        mSearchView.clearFocus();
-    }
+                        .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
+        if (query != null && mSearchView != null) {
+            mSearchView.setIconified(false);
+            mSearchView.setQueryHint(query);
+            mSearchView.clearFocus();
+        }
     }
 
     private class FetchFlickrItemTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
@@ -158,13 +177,13 @@ public class PhotoGalleryFragment extends Fragment {
         protected ArrayList<GalleryItem> doInBackground(Void... params) {
 
             Activity activity = getActivity();
-            if (activity == null){
+            if (activity == null) {
                 return new ArrayList<>();
             }
 
             String query =
                     PreferenceManager.getDefaultSharedPreferences(activity)
-                    .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
+                            .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
 
             if (query != null) {
                 FlickrFetchr fetchr = new FlickrFetchr();
@@ -178,7 +197,7 @@ public class PhotoGalleryFragment extends Fragment {
         protected void onPostExecute(ArrayList<GalleryItem> items) {
             mItems = items;
             setupAdapter();
-            if (mTotal > 0){
+            if (mTotal > 0) {
                 Toast.makeText(getActivity(), "Found " + String.valueOf(mTotal), Toast.LENGTH_SHORT)
                         .show();
             }
