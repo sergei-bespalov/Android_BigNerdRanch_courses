@@ -5,7 +5,6 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -35,13 +34,12 @@ import com.bespalov.sergey.photogallery.model.TumbnailDownloader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends VisibleFragment {
     public static final String TAG = "PhotoGalleryFragment";
-
+    TumbnailDownloader<ImageView> mTumbnailThread;
     private GridView mGridView;
     private ArrayList<GalleryItem> mItems;
     private SearchView mSearchView;
-    TumbnailDownloader<ImageView> mTumbnailThread;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,9 +112,9 @@ public class PhotoGalleryFragment extends Fragment {
         super.onPrepareOptionsMenu(menu);
 
         MenuItem toggleMenuItem = menu.findItem(R.id.menu_item_toggle_polling);
-        if (PollService.isServiceAlarmOn(getActivity())){
+        if (PollService.isServiceAlarmOn(getActivity())) {
             toggleMenuItem.setTitle(R.string.stop_polling);
-        }else {
+        } else {
             toggleMenuItem.setTitle(R.string.start_polling);
         }
     }
