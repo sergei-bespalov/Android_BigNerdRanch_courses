@@ -92,22 +92,32 @@ public class FlickrFetchr {
     }
 
     public ArrayList<GalleryItem> fetchItems() {
-        String URL = Uri.parse(ENDPOINT).buildUpon()
-                .appendQueryParameter("method", METHOD_GET_RECENT)
-                .appendQueryParameter("api_key", API_KEY)
-                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                .build().toString();
-        return downloadGalleryItems(URL);
+        ArrayList<GalleryItem> result = new ArrayList<>();
+        for (int i = 1; i <= pageCount; ++i) {
+            String URL = Uri.parse(ENDPOINT).buildUpon()
+                    .appendQueryParameter("method", METHOD_GET_RECENT)
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                    .appendQueryParameter(PARAM_PAGE,String.valueOf(i))
+                    .build().toString();
+            result.addAll(downloadGalleryItems(URL));
+        }
+        return result;
     }
 
     public ArrayList<GalleryItem> search(String text){
-        String URL = Uri.parse(ENDPOINT).buildUpon()
-                .appendQueryParameter("method", METHOD_PHOTO_SEARCH)
-                .appendQueryParameter("api_key", API_KEY)
-                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                .appendQueryParameter(PARAM_TEXT, text)
-                .build().toString();
-        return downloadGalleryItems(URL);
+        ArrayList<GalleryItem> result = new ArrayList<>();
+        for (int i = 1; i <= pageCount; ++i) {
+            String URL = Uri.parse(ENDPOINT).buildUpon()
+                    .appendQueryParameter("method", METHOD_PHOTO_SEARCH)
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                    .appendQueryParameter(PARAM_TEXT, text)
+                    .appendQueryParameter(PARAM_PAGE,String.valueOf(i))
+                    .build().toString();
+            result.addAll(downloadGalleryItems(URL));
+        }
+        return result;
     }
 
     public int getResultsCount(){
@@ -126,12 +136,14 @@ public class FlickrFetchr {
                 String serverId = parser.getAttributeValue(null, SERVER_ID);
                 String photoId = parser.getAttributeValue(null, PHOTO_ID);
                 String secret = parser.getAttributeValue(null, SECRET);
+                String owner = parser.getAttributeValue(null, "owner");
                 String format = LARGE_SQUARE;
                 String url = makePhotoUrl(farm, serverId, photoId, secret, format);
                 GalleryItem item = new GalleryItem();
                 item.setId(id);
                 item.setCaption(caption);
                 item.setUrl(url);
+                item.setOwner(owner);
                 items.add(item);
             }
             if (eventType == XmlPullParser.START_TAG && XML_PHOTOS.equals(parser.getName())){
