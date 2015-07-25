@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -22,6 +24,9 @@ public class BoxDrawningView extends View {
     private ArrayList<Box> mBoxes = new ArrayList<>();
     private Paint mBackgroundPaint;
     private Paint mBoxPaint;
+
+    private static final String BOXES = "Boxes";
+    private static final String STATE = "ViewState";
 
     public BoxDrawningView(Context context) {
         super(context);
@@ -83,5 +88,22 @@ public class BoxDrawningView extends View {
 
             canvas.drawRect(left, top, right, bottom, mBoxPaint);
         }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        super.onSaveInstanceState();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(STATE,super.onSaveInstanceState());
+        bundle.putParcelableArrayList(BOXES, mBoxes);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        Bundle bundle = (Bundle) state;
+        mBoxes = bundle.getParcelableArrayList(BOXES);
+        state = bundle.getParcelable(STATE);
+        super.onRestoreInstanceState(state);
     }
 }
