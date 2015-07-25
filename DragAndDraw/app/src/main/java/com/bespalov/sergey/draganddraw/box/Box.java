@@ -6,6 +6,11 @@ import android.os.Parcelable;
 
 public class Box implements Parcelable{
     private PointF mOrigin;
+
+    public void setOrigin(PointF origin) {
+        mOrigin = origin;
+    }
+
     private PointF mCurrent;
 
 
