@@ -25,6 +25,7 @@ public class BoxDrawningView extends View {
     private ArrayList<Box> mBoxes = new ArrayList<>();
     private Paint mBackgroundPaint;
     private Paint mBoxPaint;
+    private Paint mBluePaint;
     private int mPointerId_1 = -1;
     private int mPointerId_2 = -1;
 
@@ -39,6 +40,9 @@ public class BoxDrawningView extends View {
 
         mBoxPaint = new Paint();
         mBoxPaint.setColor(0x22ff0000);
+
+        mBluePaint = new Paint();
+        mBluePaint.setColor(0xff000000);
 
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setColor(0xfff8efe0);
@@ -64,7 +68,8 @@ public class BoxDrawningView extends View {
             case MotionEvent.ACTION_POINTER_DOWN:
                 mPointerId_2 = event.getPointerId(event.getActionIndex());
                 point2 = new PointF(event.getX(mPointerId_2), event.getY(mPointerId_2));
-                mCurrentBox.setOrigin(point2);
+                mCurrentBox.setROrigin(point2);
+                mCurrentBox.setRCurrent(point2);
                 invalidate();
                 break;
             case MotionEvent.ACTION_POINTER_UP:
@@ -79,9 +84,9 @@ public class BoxDrawningView extends View {
                 Log.i(TAG, " ACTION_MOVE");
                 if (mCurrentBox != null) {
                     mCurrentBox.setCurrent(point);
-                    if (mPointerId_2 >= 0){
+                    if (mPointerId_2 >= 0) {
                         point2 = new PointF(event.getX(mPointerId_2), event.getY(mPointerId_2));
-                        mCurrentBox.setOrigin(point2);
+                        mCurrentBox.setRCurrent(point2);
                     }
                     invalidate();
                 }
@@ -114,7 +119,39 @@ public class BoxDrawningView extends View {
             float top = Math.min(box.getOrigin().y, box.getCurrent().y);
             float bottom = Math.max(box.getOrigin().y, box.getCurrent().y);
 
+            if (box.getROrigin() != null && box.getRCurrent() != null) {
+                float middleX = (float) ((left + right) * 0.5);
+                float middleY = (float) ((top + bottom) * 0.5);
+
+                canvas.drawPoint(middleX, middleY, mBluePaint);
+
+                double vecAx = Math.abs(middleX - box.getROrigin().x);
+                double vecAy = Math.abs(middleY - box.getROrigin().y);
+
+                double vecBx = Math.abs(middleX - box.getRCurrent().x);
+                double vecBy = Math.abs(middleY - box.getRCurrent().y);
+
+                double product = vecAx * vecBx + vecAy * vecBy;
+
+                double absA = Math.sqrt(vecAx * vecAx + vecAy * vecAy);
+                double absB = Math.sqrt(vecBx * vecBx + vecBy * vecBy);
+
+                float cosAlf = (float) (product / (absA * absB));
+
+                Log.i(TAG, "Cosin: " + cosAlf);
+
+                double degrees = Math.toDegrees(Math.acos(cosAlf));
+
+                canvas.save();
+                canvas.rotate((float) degrees, middleX, middleY);
+
+                Log.i(TAG, "Degree: " + (float) degrees);
+
+            }
+
             canvas.drawRect(left, top, right, bottom, mBoxPaint);
+            canvas.restore();
+
         }
     }
 

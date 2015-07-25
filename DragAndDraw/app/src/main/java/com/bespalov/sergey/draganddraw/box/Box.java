@@ -13,6 +13,25 @@ public class Box implements Parcelable{
 
     private PointF mCurrent;
 
+    public PointF getROrigin() {
+        return mROrigin;
+    }
+
+    public void setROrigin(PointF ROrigin) {
+        mROrigin = ROrigin;
+    }
+
+    public PointF getRCurrent() {
+        return mRCurrent;
+    }
+
+    public void setRCurrent(PointF RCurrent) {
+        mRCurrent = RCurrent;
+    }
+
+    private PointF mROrigin;
+    private PointF mRCurrent;
+
 
     public PointF getCurrent() {
         return mCurrent;
@@ -39,6 +58,8 @@ public class Box implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(mOrigin,0);
         dest.writeParcelable(mCurrent,0);
+        dest.writeParcelable(mROrigin,0);
+        dest.writeParcelable(mRCurrent,0);
     }
 
     public static final Parcelable.Creator<Box> CREATOR = new Creator<Box>() {
@@ -56,5 +77,7 @@ public class Box implements Parcelable{
     public Box(Parcel in){
         mOrigin = in.readParcelable(null);
         mCurrent = in.readParcelable(null);
+        mROrigin = in.readParcelable(null);
+        mRCurrent = in.readParcelable(null);
     }
 }
