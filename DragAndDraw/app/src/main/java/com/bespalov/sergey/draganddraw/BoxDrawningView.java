@@ -28,6 +28,8 @@ public class BoxDrawningView extends View {
     private int mPointerId_1 = -1;
     private int mPointerId_2 = -1;
 
+    /*new branch*/
+
     public BoxDrawningView(Context context) {
         super(context);
     }
