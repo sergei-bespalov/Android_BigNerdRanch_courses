@@ -15,7 +15,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".model.LocationReceiver"
+        <receiver android:name=".model.TrackingLocationReceiver"
                   android:exported="false">
             <intent-filter>
                 <action android:name="com.bignerdranch.android.runtracker.ACTION_LOCATION"/>

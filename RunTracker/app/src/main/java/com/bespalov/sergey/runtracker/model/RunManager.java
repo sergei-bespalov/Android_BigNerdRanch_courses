@@ -3,38 +3,48 @@ package com.bespalov.sergey.runtracker.model;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 
 public class RunManager {
-    private static final String TAG = "RunManager";
     public static final String ACTION_LOCATION = "com.bignerdranch.android.runtracker.ACTION_LOCATION";
+    private static final String TAG = "RunManager";
+    private static final String PREFS_FILE = "runs";
+    private static final String PREF_CURRENT_RUN_ID = "RunManager.currentRunId";
     private static RunManager sRunManager;
     private Location mLastLocation;
 
     private Context mAppContext;
     private LocationManager mLocationManager;
+    private RunDatabaseHelper mHelper;
+    private SharedPreferences mPrefs;
+    private long mCurrentRunId;
+
+    private RunManager(Context appContext) {
+        mAppContext = appContext;
+        mLocationManager = (LocationManager) mAppContext.getSystemService(Context.LOCATION_SERVICE);
+        mHelper = new RunDatabaseHelper(mAppContext);
+        mPrefs = mAppContext.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
+        mCurrentRunId = mPrefs.getLong(PREF_CURRENT_RUN_ID, -1);
+    }
 
     public static RunManager get(Context context) {
-        if (sRunManager == null){
+        if (sRunManager == null) {
             sRunManager = new RunManager(context.getApplicationContext());
         }
         return sRunManager;
     }
 
-    private RunManager(Context appContext) {
-        mAppContext = appContext;
-        mLocationManager = (LocationManager)mAppContext.getSystemService(Context.LOCATION_SERVICE);
-    }
-
-    private PendingIntent getLocationPendingIntent(boolean shouldCreate){
+    private PendingIntent getLocationPendingIntent(boolean shouldCreate) {
         Intent broadcast = new Intent(ACTION_LOCATION);
-        int flag = shouldCreate? 0: PendingIntent.FLAG_NO_CREATE;
+        int flag = shouldCreate ? 0 : PendingIntent.FLAG_NO_CREATE;
         return PendingIntent.getBroadcast(mAppContext, 0, broadcast, flag);
     }
 
-    public void startLocationUpdates(){
+    public void startLocationUpdates() {
         String provider = LocationManager.GPS_PROVIDER;
 
         Location lastKnown = mLocationManager.getLastKnownLocation(provider);
@@ -47,9 +57,9 @@ public class RunManager {
         mLocationManager.requestLocationUpdates(provider, 0, 0, pi);
     }
 
-    public void stopLocationUpdates(){
+    public void stopLocationUpdates() {
         PendingIntent pi = getLocationPendingIntent(false);
-        if (pi != null){
+        if (pi != null) {
             mLocationManager.removeUpdates(pi);
             pi.cancel();
         }
@@ -61,7 +71,44 @@ public class RunManager {
         mAppContext.sendBroadcast(broadcast);
     }
 
-    public boolean isTrackingRun(){
+    public boolean isTrackingRun() {
         return getLocationPendingIntent(false) != null;
+    }
+
+    public Run startNewRun(){
+        //inserts an object Run into a database
+        Run run = insertRun();
+        //starts tracking
+        startTrackingRun(run);
+        return  run;
+    }
+
+    public void startTrackingRun(Run run){
+        // gets index
+        mCurrentRunId = run.getId();
+        //saves it in common preferences
+        mPrefs.edit().putLong(PREF_CURRENT_RUN_ID, mCurrentRunId).apply();
+        //starts location updates
+        startLocationUpdates();
+    }
+
+    public void stopRun(){
+        stopLocationUpdates();
+        mCurrentRunId = - 1;
+        mPrefs.edit().remove(PREF_CURRENT_RUN_ID).apply();
+    }
+
+    private Run insertRun(){
+        Run run = new Run();
+        run.setId(mHelper.insertRun(run));
+        return run;
+    }
+
+    public void insertLocation(Location loc){
+        if (mCurrentRunId != -1){
+            mHelper.insertLocation(mCurrentRunId, loc);
+        }else {
+            Log.e(TAG, "Location received with no tracking run; ignoring.");
+        }
     }
 }
