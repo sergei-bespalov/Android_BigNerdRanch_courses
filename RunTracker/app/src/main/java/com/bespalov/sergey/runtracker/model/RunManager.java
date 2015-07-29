@@ -37,6 +37,12 @@ public class RunManager {
     public void startLocationUpdates(){
         String provider = LocationManager.GPS_PROVIDER;
 
+        Location lastKnown = mLocationManager.getLastKnownLocation(provider);
+        if (lastKnown != null) {
+            lastKnown.setTime(System.currentTimeMillis());
+            broadcastLocation(lastKnown);
+        }
+
         PendingIntent pi = getLocationPendingIntent(true);
         mLocationManager.requestLocationUpdates(provider, 0, 0, pi);
     }
@@ -47,6 +53,12 @@ public class RunManager {
             mLocationManager.removeUpdates(pi);
             pi.cancel();
         }
+    }
+
+    private void broadcastLocation(Location location) {
+        Intent broadcast = new Intent(ACTION_LOCATION);
+        broadcast.putExtra(LocationManager.KEY_LOCATION_CHANGED, location);
+        mAppContext.sendBroadcast(broadcast);
     }
 
     public boolean isTrackingRun(){

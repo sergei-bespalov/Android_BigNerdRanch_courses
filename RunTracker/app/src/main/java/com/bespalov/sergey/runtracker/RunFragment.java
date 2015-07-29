@@ -7,6 +7,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,9 @@ import com.bespalov.sergey.runtracker.model.Run;
 import com.bespalov.sergey.runtracker.model.RunManager;
 
 public class RunFragment extends Fragment {
+
+    public final static String TAG = "RunFragment";
+
     private Button mStartButton, mStopButton;
     private TextView mStartedTextView,
             mLatitudeTextView,
@@ -32,6 +36,7 @@ public class RunFragment extends Fragment {
         @Override
         protected void onLocationReceived(Context context, Location loc) {
             super.onLocationReceived(context, loc);
+            mLastLocation = loc;
             if (isVisible()){
                 updateUI();
             }
@@ -91,9 +96,13 @@ public class RunFragment extends Fragment {
         int durationSeconds = 0;
         if (mRun != null && mLastLocation != null) {
             durationSeconds = mRun.getDurationSeconds(mLastLocation.getTime());
+            Log.d(TAG, "Time: " + durationSeconds);
             mLatitudeTextView.setText(Double.toString(mLastLocation.getLatitude()));
+            Log.d(TAG, "Latitude: " + Double.toString(mLastLocation.getLatitude()));
             mLongitudeTextView.setText(Double.toString(mLastLocation.getLongitude()));
+            Log.d(TAG, "Longitude: " + Double.toString(mLastLocation.getLongitude()));
             mAltitudeTextView.setText(Double.toString(mLastLocation.getAltitude()));
+            Log.d(TAG, "Altitude: " + Double.toString(mLastLocation.getAltitude()));
         }
         mDurationTextView.setText(Run.formatDuration(durationSeconds));
     }
