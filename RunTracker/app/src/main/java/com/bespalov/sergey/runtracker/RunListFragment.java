@@ -22,7 +22,7 @@ import com.bespalov.sergey.runtracker.model.RunManager;
 
 public class RunListFragment extends ListFragment{
 
-    private static final int REAUEST_NEW_RUN = 0;
+    private static final int REAQUEST_NEW_RUN = 0;
 
     private RunDatabaseHelper.RunCursor mCursor;
 
@@ -53,7 +53,7 @@ public class RunListFragment extends ListFragment{
         switch (item.getItemId()){
             case R.id.menu_item_new_run:
                 Intent i = new Intent(getActivity(), RunActivity.class);
-                startActivityForResult(i, REAUEST_NEW_RUN);
+                startActivityForResult(i, REAQUEST_NEW_RUN);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -62,10 +62,9 @@ public class RunListFragment extends ListFragment{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (REAUEST_NEW_RUN == requestCode) {
+        if (REAQUEST_NEW_RUN == requestCode) {
             mCursor.requery();
             ((RunCursorAdapter)getListAdapter()).notifyDataSetChanged();
-            getListView().invalidate();
 
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -75,7 +74,7 @@ public class RunListFragment extends ListFragment{
     public void onListItemClick(ListView l, View v, int position, long id) {
         Intent i = new Intent(getActivity(), RunActivity.class);
         i.putExtra(RunActivity.EXTRA_RUN_ID, id);
-        startActivity(i);
+        startActivityForResult(i, REAQUEST_NEW_RUN);
     }
 
     private static class RunCursorAdapter extends CursorAdapter {
@@ -105,6 +104,8 @@ public class RunListFragment extends ListFragment{
             RunManager manager = RunManager.get(context);
             if (manager.isTrackingRun(run)){
                 startDateTextView.setTextColor(Color.GREEN);
+            }else {
+                startDateTextView.setTextColor(Color.DKGRAY);
             }
             startDateTextView.setText(cellText);
         }
