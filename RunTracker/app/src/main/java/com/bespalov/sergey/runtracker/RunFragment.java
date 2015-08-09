@@ -23,6 +23,8 @@ public class RunFragment extends Fragment {
 
     public final static String TAG = "RunFragment";
 
+    private static final String ARG_RUN_ID = "RUN_ID";
+
     private Button mStartButton, mStopButton;
     private TextView mStartedTextView,
             mLatitudeTextView,
@@ -32,12 +34,31 @@ public class RunFragment extends Fragment {
     private Run mRun;
     private RunManager mRunManager;
     private Location mLastLocation;
-    private BroadcastReceiver mLocationReceiver = new LocationReceiver(){
+
+    public static RunFragment newInstance(long runId){
+        Bundle args = new Bundle();
+        args.putLong(ARG_RUN_ID, runId);
+        RunFragment rf = new RunFragment();
+        rf.setArguments(args);
+        return  rf;
+    }
+
+    private BroadcastReceiver mLocationReceiver = new LocationReceiver() {
         @Override
         protected void onLocationReceived(Context context, Location loc) {
             super.onLocationReceived(context, loc);
+            if (!mRunManager.isTrackingRun(mRun)){
+                return;
+            }
             mLastLocation = loc;
-            if (isVisible()){
+            if (mRun != null) {
+                long durationSeconds = mRun.getDurationSeconds(mLastLocation.getTime());
+                Log.d(TAG, "Time: " + durationSeconds);
+            }
+            Log.d(TAG, "Latitude: " + Double.toString(mLastLocation.getLatitude()));
+            Log.d(TAG, "Longitude: " + Double.toString(mLastLocation.getLongitude()));
+            Log.d(TAG, "Altitude: " + Double.toString(mLastLocation.getAltitude()));
+            if (isVisible()) {
                 updateUI();
             }
         }
@@ -55,17 +76,31 @@ public class RunFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mRunManager = RunManager.get(getActivity());
+
+        //check Run id and get object
+        Bundle args = getArguments();
+        if (args != null){
+            long runId = args.getLong(ARG_RUN_ID);
+            if (runId != -1){
+                mRun = mRunManager.getRun(runId);
+                mLastLocation = mRunManager.getLastLocationForRun(runId);
+            }
+        }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_run,container,false);
+        View view = inflater.inflate(R.layout.fragment_run, container, false);
         mStartButton = (Button) view.findViewById(R.id.startButton);
-        mStartButton.setOnClickListener(new View.OnClickListener(){
+        mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRun = mRunManager.startNewRun();
+                if (mRun == null){
+                    mRun = mRunManager.startNewRun();
+                }else {
+                    mRunManager.startTrackingRun(mRun);
+                }
                 updateUI();
             }
         });
@@ -86,22 +121,19 @@ public class RunFragment extends Fragment {
         return view;
     }
 
-    private void updateUI(){
+    private void updateUI() {
         boolean started = mRunManager.isTrackingRun();
+        boolean trackingThisRun = mRunManager.isTrackingRun(mRun);
         mStartButton.setEnabled(!started);
-        mStopButton.setEnabled(started);
+        mStopButton.setEnabled(started && trackingThisRun);
         if (mRun != null)
             mStartedTextView.setText(mRun.getStartDate().toString());
         int durationSeconds = 0;
         if (mRun != null && mLastLocation != null) {
             durationSeconds = mRun.getDurationSeconds(mLastLocation.getTime());
-            Log.d(TAG, "Time: " + durationSeconds);
             mLatitudeTextView.setText(Double.toString(mLastLocation.getLatitude()));
-            Log.d(TAG, "Latitude: " + Double.toString(mLastLocation.getLatitude()));
             mLongitudeTextView.setText(Double.toString(mLastLocation.getLongitude()));
-            Log.d(TAG, "Longitude: " + Double.toString(mLastLocation.getLongitude()));
             mAltitudeTextView.setText(Double.toString(mLastLocation.getAltitude()));
-            Log.d(TAG, "Altitude: " + Double.toString(mLastLocation.getAltitude()));
         }
         mDurationTextView.setText(Run.formatDuration(durationSeconds));
     }
@@ -111,6 +143,7 @@ public class RunFragment extends Fragment {
         super.onStart();
         getActivity().registerReceiver(mLocationReceiver, new IntentFilter(RunManager.ACTION_LOCATION));
     }
+
     @Override
     public void onStop() {
         getActivity().unregisterReceiver(mLocationReceiver);

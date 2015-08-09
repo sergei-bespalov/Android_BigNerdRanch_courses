@@ -75,6 +75,10 @@ public class RunManager {
         return getLocationPendingIntent(false) != null;
     }
 
+    public boolean isTrackingRun(Run run) {
+        return run != null && run.getId() == mCurrentRunId;
+    }
+
     public Run startNewRun(){
         //inserts an object Run into a database
         Run run = insertRun();
@@ -104,11 +108,33 @@ public class RunManager {
         return run;
     }
 
+    public Run getRun(long id){
+        Run run = null;
+        RunDatabaseHelper.RunCursor cursor = mHelper.queryRun(id);
+        cursor.moveToFirst();
+        if (!cursor.isAfterLast()) run = cursor.getRun();
+        cursor.close();
+        return run;
+    }
+
+    public RunDatabaseHelper.RunCursor queryRuns() {
+        return mHelper.queryRuns();
+    }
+
     public void insertLocation(Location loc){
         if (mCurrentRunId != -1){
             mHelper.insertLocation(mCurrentRunId, loc);
         }else {
             Log.e(TAG, "Location received with no tracking run; ignoring.");
         }
+    }
+
+    public Location getLastLocationForRun(long runId){
+        Location location = null;
+        RunDatabaseHelper.LocationCursor cursor = mHelper.queryLastLocationForRun(runId);
+        cursor.moveToFirst();
+        if (!cursor.isAfterLast())  location = cursor.getLocation();
+        cursor.close();
+        return  location;
     }
 }
