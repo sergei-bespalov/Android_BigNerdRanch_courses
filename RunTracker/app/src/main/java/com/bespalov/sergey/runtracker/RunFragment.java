@@ -1,12 +1,17 @@
 package com.bespalov.sergey.runtracker;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,20 +39,12 @@ public class RunFragment extends Fragment {
     private Run mRun;
     private RunManager mRunManager;
     private Location mLastLocation;
-
-    public static RunFragment newInstance(long runId){
-        Bundle args = new Bundle();
-        args.putLong(ARG_RUN_ID, runId);
-        RunFragment rf = new RunFragment();
-        rf.setArguments(args);
-        return  rf;
-    }
-
+    private NotificationManager mNotificationManager;
     private BroadcastReceiver mLocationReceiver = new LocationReceiver() {
         @Override
         protected void onLocationReceived(Context context, Location loc) {
             super.onLocationReceived(context, loc);
-            if (!mRunManager.isTrackingRun(mRun)){
+            if (!mRunManager.isTrackingRun(mRun)) {
                 return;
             }
             mLastLocation = loc;
@@ -58,6 +55,28 @@ public class RunFragment extends Fragment {
             Log.d(TAG, "Latitude: " + Double.toString(mLastLocation.getLatitude()));
             Log.d(TAG, "Longitude: " + Double.toString(mLastLocation.getLongitude()));
             Log.d(TAG, "Altitude: " + Double.toString(mLastLocation.getAltitude()));
+
+            Intent i = new Intent(MyApp.getContext(), RunActivity.class);
+            i.putExtra(RunActivity.EXTRA_RUN_ID, mRun.getId());
+
+            PendingIntent pi = PendingIntent.getActivity(MyApp.getContext(),0, i,0);
+
+            Notification notification = new NotificationCompat.Builder(MyApp.getContext())
+                    .setTicker("is Tracking")
+                    .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                    .setContentTitle("New location: ")
+                    .setContentText(R.string.latitude + " " + Double.toString(mLastLocation.getLatitude())
+                            + " " + R.string.longitude + " " + Double.toString(mLastLocation.getLongitude())
+                            + " " + R.string.altitude + " " + Double.toString(mLastLocation.getAltitude()))
+                    .setContentIntent(pi)
+                    .setAutoCancel(true)
+                    .build();
+
+            if (mNotificationManager == null){
+                mNotificationManager = (NotificationManager) MyApp.getContext()
+                        .getSystemService(Context.NOTIFICATION_SERVICE);
+            }
+            mNotificationManager.notify(0,notification);
             if (isVisible()) {
                 updateUI();
             }
@@ -71,6 +90,14 @@ public class RunFragment extends Fragment {
         }
     };
 
+    public static RunFragment newInstance(long runId) {
+        Bundle args = new Bundle();
+        args.putLong(ARG_RUN_ID, runId);
+        RunFragment rf = new RunFragment();
+        rf.setArguments(args);
+        return rf;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,9 +106,9 @@ public class RunFragment extends Fragment {
 
         //check Run id and get object
         Bundle args = getArguments();
-        if (args != null){
+        if (args != null) {
             long runId = args.getLong(ARG_RUN_ID);
-            if (runId != -1){
+            if (runId != -1) {
                 mRun = mRunManager.getRun(runId);
                 mLastLocation = mRunManager.getLastLocationForRun(runId);
             }
@@ -96,9 +123,9 @@ public class RunFragment extends Fragment {
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRun == null){
+                if (mRun == null) {
                     mRun = mRunManager.startNewRun();
-                }else {
+                } else {
                     mRunManager.startTrackingRun(mRun);
                 }
                 updateUI();
