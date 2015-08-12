@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bespalov.sergey.runtracker.model.DataLoader;
 import com.bespalov.sergey.runtracker.model.LastLocationLoader;
 import com.bespalov.sergey.runtracker.model.LocationReceiver;
 import com.bespalov.sergey.runtracker.model.Run;
