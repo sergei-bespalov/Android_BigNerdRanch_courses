@@ -65,9 +65,9 @@ public class RunFragment extends Fragment {
                     .setTicker("is Tracking")
                     .setSmallIcon(android.R.drawable.ic_menu_mylocation)
                     .setContentTitle("New location: ")
-                    .setContentText(R.string.latitude + " " + Double.toString(mLastLocation.getLatitude())
-                            + " " + R.string.longitude + " " + Double.toString(mLastLocation.getLongitude())
-                            + " " + R.string.altitude + " " + Double.toString(mLastLocation.getAltitude()))
+                    .setContentText(getString(R.string.latitude) + " " + Double.toString(mLastLocation.getLatitude())
+                            + " " + getString(R.string.longitude) + " " + Double.toString(mLastLocation.getLongitude())
+                            + " " + getString(R.string.altitude) + " " + Double.toString(mLastLocation.getAltitude()))
                     .setContentIntent(pi)
                     .setAutoCancel(true)
                     .build();
@@ -144,7 +144,7 @@ public class RunFragment extends Fragment {
         mLongitudeTextView = (TextView) view.findViewById(R.id.longitude);
         mAltitudeTextView = (TextView) view.findViewById(R.id.altitude);
         mDurationTextView = (TextView) view.findViewById(R.id.elapsedTime);
-
+        updateUI();
         return view;
     }
 
