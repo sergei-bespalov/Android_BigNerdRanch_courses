@@ -137,4 +137,8 @@ public class RunManager {
         cursor.close();
         return  location;
     }
+
+    public RunDatabaseHelper.LocationCursor queryLocationsForRun(long runId){
+        return mHelper.queryLastLocationForRun(runId);
+    }
 }

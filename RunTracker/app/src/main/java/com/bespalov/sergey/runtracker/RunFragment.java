@@ -36,7 +36,7 @@ public class RunFragment extends Fragment {
     private static final int LOAD_RUN = 0;
     private static final int LOAD_LOCATION = 1;
 
-    private Button mStartButton, mStopButton;
+    private Button mStartButton, mStopButton, mMapButton;
     private TextView mStartedTextView,
             mLatitudeTextView,
             mLongitudeTextView,
@@ -151,6 +151,15 @@ public class RunFragment extends Fragment {
         mLongitudeTextView = (TextView) view.findViewById(R.id.longitude);
         mAltitudeTextView = (TextView) view.findViewById(R.id.altitude);
         mDurationTextView = (TextView) view.findViewById(R.id.elapsedTime);
+        mMapButton = (Button) view.findViewById(R.id.run_mapButton);
+        mMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), RunMapActivity.class);
+                i.putExtra(RunMapActivity.EXTRA_RUN_ID, mRun.getId());
+                startActivity(i);
+            }
+        });
         updateUI();
         return view;
     }
@@ -168,6 +177,9 @@ public class RunFragment extends Fragment {
             mLatitudeTextView.setText(Double.toString(mLastLocation.getLatitude()));
             mLongitudeTextView.setText(Double.toString(mLastLocation.getLongitude()));
             mAltitudeTextView.setText(Double.toString(mLastLocation.getAltitude()));
+            mMapButton.setEnabled(true);
+        }else {
+            mMapButton.setEnabled(false);
         }
         mDurationTextView.setText(Run.formatDuration(durationSeconds));
     }

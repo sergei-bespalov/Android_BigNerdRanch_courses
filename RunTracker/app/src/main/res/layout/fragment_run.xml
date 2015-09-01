@@ -98,4 +98,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
     </TableRow>
+    <TableRow
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp">
+        <Button
+            android:id="@+id/run_mapButton"
+            android:text="@string/map"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </TableRow>
 </TableLayout>
