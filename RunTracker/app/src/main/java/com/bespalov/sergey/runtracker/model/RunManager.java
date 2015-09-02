@@ -79,6 +79,10 @@ public class RunManager {
         return run != null && run.getId() == mCurrentRunId;
     }
 
+    public boolean isTrackingId(long id){
+        return id == mCurrentRunId;
+    }
+
     public Run startNewRun(){
         //inserts an object Run into a database
         Run run = insertRun();
@@ -139,6 +143,6 @@ public class RunManager {
     }
 
     public RunDatabaseHelper.LocationCursor queryLocationsForRun(long runId){
-        return mHelper.queryLastLocationForRun(runId);
+        return mHelper.queryLocationForRun(runId);
     }
 }
